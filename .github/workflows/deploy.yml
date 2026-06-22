@@ -13,6 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Verify Dockerfile Exists
+      - name: Build Docker Image
         run: |
-          ls -la
+          docker build -t myapp .
