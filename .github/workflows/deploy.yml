@@ -32,8 +32,9 @@ jobs:
             echo "Building Docker image..."
             sudo docker build -t myapp:latest .
 
-            echo "Cleaning old container..."
-            sudo docker rm -f myapp || true
+            echo "Stopping anything using port 80..."
+            sudo docker ps -q --filter "publish=80" | xargs -r sudo docker stop
+            sudo docker ps -aq --filter "publish=80" | xargs -r sudo docker rm
 
             echo "Starting new container..."
             sudo docker run -d --name myapp -p 80:80 myapp:latest
