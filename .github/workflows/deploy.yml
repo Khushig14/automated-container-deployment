@@ -13,12 +13,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Debug Secrets (remove after testing)
-        run: |
-          echo "Host: ${{ secrets.EC2_HOSTIP != '' && 'SET' || 'MISSING' }}"
-          echo "User: ${{ secrets.EC2_USERID != '' && 'SET' || 'MISSING' }}"
-          echo "Key length: ${{ secrets.EC2_KEY != '' && length(secrets.EC2_KEY) || '0' }}"
-
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -41,7 +35,7 @@ jobs:
 
             echo "=== Updating Code ==="
             git reset --hard HEAD
-            git pull origin main || echo "Git pull failed - repo may need initial clone"
+            git pull origin main || echo "Warning: Git pull failed"
 
             echo "=== Building Docker Image ==="
             sudo docker build -t myapp:latest .
@@ -51,7 +45,7 @@ jobs:
             sudo docker rm myapp || true
 
             echo "=== Starting New Container ==="
-            sudo docker run -d --name myapp -p 80:80 myapp:latest
+            sudo docker run -d --name myapp -p 80:80 myapp:latest --restart unless-stopped
 
             echo "=== Deployment Completed Successfully ==="
             sudo docker ps
